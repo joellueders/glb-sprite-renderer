@@ -26,7 +26,7 @@ The page uses browser-native file input, so selected `.glb` files stay local to 
 4. Use **Export current PNG** for one transparent frame.
 5. Use **Export 8-direction animation sheet** for a transparent animated sheet.
 
-## Recommended Killbox Settings
+## Recommended Settings
 
 - Frame size: `256`
 - Directions: `8`
@@ -69,4 +69,4 @@ The model is rotated by 45-degree increments for each direction row. The **Model
 
 Enable **show frame bounds** when tuning the preview to see the square frame edge. The exported PNG remains transparent.
 
-The tool keeps the full square frame for now. If the character appears tiny because of transparent padding, Killbox can crop or trim transparent padding at draw time later without changing the source sheet.
+The tool keeps the full square frame for now. If the character appears tiny because of transparent padding, ask codex to crop or trim transparent padding at draw time later without changing the source sheet.
