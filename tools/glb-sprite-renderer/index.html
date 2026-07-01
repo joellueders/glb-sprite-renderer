@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GLB Sprite Renderer</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        background: #17191f;
+        color: #eef2f7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
+      }
+
+      aside {
+        border-right: 1px solid #2a2f3a;
+        background: #20242d;
+        padding: 22px;
+        overflow: auto;
+      }
+
+      main {
+        min-width: 0;
+        display: grid;
+        grid-template-rows: auto 1fr;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 1.35rem;
+        line-height: 1.2;
+      }
+
+      .build-stamp {
+        margin: 4px 0 20px;
+        color: #9aa7b8;
+        font-size: 0.8rem;
+        line-height: 1.35;
+        white-space: pre-line;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      label {
+        color: #c8d1dd;
+        font-size: 0.9rem;
+        font-weight: 650;
+      }
+
+      input,
+      select,
+      button {
+        width: 100%;
+        border: 1px solid #3a4250;
+        border-radius: 6px;
+        background: #14171d;
+        color: #eef2f7;
+        font: inherit;
+      }
+
+      input[type="file"] {
+        padding: 10px;
+      }
+
+      input[type="range"] {
+        accent-color: #80c7ff;
+      }
+
+      input[type="checkbox"] {
+        width: auto;
+        accent-color: #80c7ff;
+      }
+
+      select,
+      button {
+        min-height: 40px;
+        padding: 0 12px;
+      }
+
+      button {
+        cursor: pointer;
+        background: #2b75ad;
+        border-color: #3b91d2;
+        font-weight: 700;
+      }
+
+      button.secondary {
+        background: #343b47;
+        border-color: #4a5363;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+
+      .readout {
+        color: #9aa7b8;
+        font-variant-numeric: tabular-nums;
+        font-size: 0.82rem;
+      }
+
+      .field label:has(input[type="checkbox"]) {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .toolbar {
+        display: grid;
+        gap: 10px;
+      }
+
+      .status {
+        min-height: 22px;
+        margin-top: 16px;
+        color: #b7c4d2;
+        font-size: 0.86rem;
+      }
+
+      .preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 58px;
+        padding: 0 20px;
+        border-bottom: 1px solid #2a2f3a;
+        background: #1b1f27;
+      }
+
+      .preview-header strong {
+        font-size: 0.95rem;
+      }
+
+      .canvas-wrap {
+        min-height: 0;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+        background-color: #272c35;
+        background-image:
+          linear-gradient(45deg, #303642 25%, transparent 25%),
+          linear-gradient(-45deg, #303642 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #303642 75%),
+          linear-gradient(-45deg, transparent 75%, #303642 75%);
+        background-position:
+          0 0,
+          0 10px,
+          10px -10px,
+          -10px 0;
+        background-size: 20px 20px;
+      }
+
+      canvas {
+        width: min(80vmin, 820px);
+        height: min(80vmin, 820px);
+        max-width: 100%;
+        max-height: 100%;
+        image-rendering: auto;
+      }
+
+      .show-bounds canvas {
+        outline: 2px solid rgba(128, 199, 255, 0.9);
+        outline-offset: -2px;
+      }
+
+      @media (max-width: 820px) {
+        body {
+          grid-template-columns: 1fr;
+        }
+
+        aside {
+          border-right: 0;
+          border-bottom: 1px solid #2a2f3a;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <aside>
+      <h1>GLB Sprite Renderer</h1>
+      <div class="build-stamp">v0.2.0
+AnimSheets</div>
+
+      <div class="field">
+        <label for="modelInput">Local GLB model</label>
+        <input id="modelInput" type="file" accept=".glb,model/gltf-binary" />
+      </div>
+
+      <div class="field">
+        <label for="cameraAngle">Camera angle</label>
+        <input id="cameraAngle" type="range" min="20" max="75" value="42" step="1" />
+        <span class="readout" id="cameraAngleValue">42 deg</span>
+      </div>
+
+      <div class="field">
+        <label for="clipSelect">Animation clip</label>
+        <select id="clipSelect" disabled>
+          <option value="">No animation loaded</option>
+        </select>
+        <span class="readout" id="clipInfo">Select an animated GLB.</span>
+      </div>
+
+      <div class="field">
+        <label for="orthoScale">Zoom / orthographic scale</label>
+        <input id="orthoScale" type="range" min="1" max="8" value="4" step="0.1" />
+        <span class="readout" id="orthoScaleValue">4.0</span>
+      </div>
+
+      <div class="field">
+        <label for="modelRotation">Model rotation</label>
+        <input id="modelRotation" type="range" min="0" max="360" value="0" step="1" />
+        <span class="readout" id="modelRotationValue">0 deg</span>
+      </div>
+
+      <div class="field">
+        <label for="verticalOffset">Model vertical offset</label>
+        <input id="verticalOffset" type="range" min="-2" max="2" value="0" step="0.01" />
+        <span class="readout" id="verticalOffsetValue">0.00</span>
+      </div>
+
+      <div class="field">
+        <label for="frameSize">Frame size</label>
+        <select id="frameSize">
+          <option value="128">128 x 128</option>
+          <option value="256" selected>256 x 256</option>
+          <option value="512">512 x 512</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="frameCount">Animation frames per direction</label>
+        <input id="frameCount" type="range" min="1" max="12" value="4" step="1" />
+        <span class="readout" id="frameCountValue">4 frames</span>
+      </div>
+
+      <div class="field">
+        <label for="playbackSpeed">Animation playback speed</label>
+        <input id="playbackSpeed" type="range" min="0" max="2" value="1" step="0.05" />
+        <span class="readout" id="playbackSpeedValue">1.00x</span>
+      </div>
+
+      <div class="field">
+        <label>
+          <input id="showBounds" type="checkbox" />
+          show frame bounds
+        </label>
+      </div>
+
+      <div class="toolbar">
+        <button id="exportCurrent" disabled>Export current PNG</button>
+        <button id="exportSheet" class="secondary" disabled>Export 8-direction animation sheet</button>
+      </div>
+
+      <div class="status" id="status">Choose a .glb file to begin.</div>
+    </aside>
+
+    <main>
+      <div class="preview-header">
+        <strong>Transparent render preview</strong>
+        <span class="readout" id="modelName">No model loaded</span>
+      </div>
+      <div class="canvas-wrap" id="canvasWrap"></div>
+    </main>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.166.1/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.166.1/examples/jsm/"
+        }
+      }
+    </script>
+    <script type="module" src="./renderer.js"></script>
+  </body>
+</html>
