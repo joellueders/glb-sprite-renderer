@@ -2,7 +2,7 @@
 
 A small local browser tool for turning animated `.glb` files into transparent PNG sprite sheets.
 
-The tool is aimed at 2D game projects that have animated 3D character exports but are not ready to ship live 3D at runtime. It loads a local GLB in the browser, previews the selected animation with Three.js, and exports an 8-direction sprite sheet.
+The tool is aimed at 2D game projects that have animated 3D character exports. For example in isometric 3/4 view games. It loads a local GLB in the browser, previews the selected animation with Three.js, and exports an 8-direction sprite sheet.
 
 ## Open The Tool
 
